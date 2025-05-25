@@ -20,17 +20,7 @@ export default function WebChat() {
         console.log('message: ', messages[0].text);
     }
 },[messages])
-  useEffect(() => {
-    // Connect to the WebSocket server when component mounts
-    connectWebSocket();
 
-    // Clean up the WebSocket connection when component unmounts
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
-  }, []);
 
   const connectWebSocket = (): void => {
     // Create WebSocket connection
@@ -44,7 +34,6 @@ export default function WebChat() {
 
     // Listen for messages
     socketRef.current.onmessage = (event: MessageEvent) => {
-      const message = event.data;
       console.log("event: ", JSON.parse(event.data).content);
       const response = JSON.parse(event.data).content as string;
       setMessages((prevMessages) => [...prevMessages, { text: response, sender: 'Server' }]);
@@ -69,6 +58,18 @@ export default function WebChat() {
       setConnectionStatus('Error');
     };
   };
+
+    useEffect(() => {
+    // Connect to the WebSocket server when component mounts
+    connectWebSocket();
+
+    // Clean up the WebSocket connection when component unmounts
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, [connectWebSocket]);
 
   const sendMessage = (e: React.FormEvent): void => {
     e.preventDefault();
