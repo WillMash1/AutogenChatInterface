@@ -2,10 +2,15 @@
 
 import { useRef, useState } from "react";
 import Spinner from "./Spinner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 export default function Home() {
   const [userQuestions, setUserQuestion] = useState<string>("");
-  const [answers, setAnswers] = useState<{message: string, source: string}[]>([]);
+  const [answers, setAnswers] = useState<{ message: string; source: string }[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const ws = new WebSocket("ws://localhost:8002/ws/chat");
@@ -19,11 +24,18 @@ export default function Home() {
       console.error(message.content);
     } else {
       console.log(message);
-      if(message.content) {
-        setAnswers(prevAnswers => [...prevAnswers, {message: message.content, source: message.source}])
+      if (message.content) {
+        setAnswers((prevAnswers) => [
+          ...prevAnswers,
+          { message: message.content, source: message.source },
+        ]);
       }
-
-      setIsLoading(false);
+      console.log('source', message.source);
+      if(message.source === "yoda" || !message.content) {
+        
+        setIsLoading(false);
+      }
+      
     }
   };
 
@@ -35,33 +47,33 @@ export default function Home() {
 
   return (
     <>
-      <div>
-        <form className="flex flex-col">
-          <label className="font-bold ">What would you like to research?</label>
-          <input
+      <div className="flex flex-row justify-center items-center w-screen h-screen">
+        <Card className="flex flex-col w-2/5 gap-2 p-8 h-fit">
+          <h1 className="font-bold text-xl">What would you like to research?</h1>
+          
+          
+          <div>
+          {answers.map((answer, index) => (
+            <div className="flex flex-row mt-2" key={index + answer.message}>
+              <p className="w-1/5 font-bold mr-2">{answer.source}: </p>
+               {" "}
+              <p className="w-4/5">{answer.message}</p>
+            </div>
+          ))}
+          </div>
+          {isLoading && (
+                        <Spinner />
+                    )}
+          <Input
             value={userQuestions}
             onChange={(e) => setUserQuestion(e.target.value)}
-            placeholder="What's the weather in New York City"
-            className="border border-white"
+            placeholder="What's the weather in New York City?"
+            // className="border border-blac"
           />
-          <button onClick={postWithWebsocket} type="button">
+          <Button onClick={postWithWebsocket} type="button">
             Send
-          </button>
-        </form>
-
-        {isLoading && (
-          <div>
-            <p>Loading</p>
-            <Spinner />
-          </div>
-        )}
-           {answers.map((answer, index) => (
-            <div className="flex" key={index + answer.message}>
-                <p>{answer.source}: </p>
-                <p>{answer.message}</p>
-            </div>
-           ))}
-      
+          </Button>
+        </Card>
       </div>
     </>
   );
