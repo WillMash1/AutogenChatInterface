@@ -12,8 +12,8 @@ export default function Home() {
     []
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const ws = new WebSocket("ws://localhost:8002/ws/chat");
+  const url = process.env.NEXT_PUBLIC_API_URL!
+  const ws = new WebSocket(url);
 
   ws.onmessage = function (event) {
     setIsLoading(true);
